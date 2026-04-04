@@ -82,10 +82,10 @@ EDGES_DATA = [
     ("S", "A", 10),
     ("S", "B", 8),
     ("A", "B", 5),
-    ("A", "C", 7),
+    ("A", "C", 8),
     ("B", "D", 10),
     ("C", "T", 8),
-    ("D", "T", 10),
+    ("D", "T", 11),
     ("C", "D", 3),
 ]
 
@@ -211,17 +211,17 @@ class WhatIsACutScene(Scene):
         self.play(FadeIn(graph_grp), run_time=1.5)
         self.wait(2)
 
-        # ── Cut 1: S-side = {S, A, B}, T-side = {C, D, T} ──
+        # ── Cut 1: S-side = {S, A, B, C}, T-side = {D, T} ──
         cut1_label = Text(
-            "Cut 1:  S-side = {S, A, B}    T-side = {C, D, T}",
+            "Cut 1:  S-side = {S, A, B, C}    T-side = {D, T}",
             font_size=26,
             color=YELLOW,
         )
         cut1_label.to_edge(DOWN, buff=0.6)
         self.play(Write(cut1_label), run_time=1)
 
-        s_side_1 = ["S", "A", "B"]
-        t_side_1 = ["C", "D", "T"]
+        s_side_1 = ["S", "A", "B", "C"]
+        t_side_1 = ["D", "T"]
         highlights_1 = []
         for name in s_side_1:
             h = nodes[name][0].copy().set_stroke(S_SIDE_COLOR, width=5)
@@ -232,15 +232,15 @@ class WhatIsACutScene(Scene):
         self.play(*[Create(h) for h in highlights_1], run_time=1.5)
         self.wait(1)
 
-        # Crossing edges: A→C (7), B→D (10)  → capacity = 17
-        cross_edges_1 = [("A", "C"), ("B", "D")]
+        # Crossing edges: B→D (10), C→T (8), C→D (3)  → capacity = 21
+        cross_edges_1 = [("B", "D"), ("C", "T"), ("C", "D")]
         cross_highlights_1 = []
         for u, v in cross_edges_1:
             ch = edges[(u, v)][0].copy().set_color(RED).set_stroke(width=6)
             cross_highlights_1.append(ch)
         self.play(*[Create(c) for c in cross_highlights_1], run_time=1)
 
-        cap1_text = Text("Cut capacity = 7 + 10 = 17", font_size=28, color=RED)
+        cap1_text = Text("Cut capacity = 10 + 8 + 3 = 21", font_size=28, color=RED)
         cap1_text.next_to(cut1_label, UP, buff=0.3)
         self.play(Write(cap1_text), run_time=1)
         self.wait(3)
@@ -285,7 +285,7 @@ class WhatIsACutScene(Scene):
         self.wait(2)
 
         compare = Text(
-            "Cut 1 (17) < Cut 2 (18)  →  Cut 1 is better!",
+            "Cut 2 (18) < Cut 1 (21)  →  Cut 2 is better!",
             font_size=28,
             color=GREEN,
         )
@@ -542,27 +542,7 @@ class MinCutIdentificationScene(Scene):
         self.play(FadeIn(step1), run_time=1)
         self.wait(2)
 
-        # Final residual capacities (after all 4 augmenting paths)
-        # Path 1: S->A->C->T, flow=7  => S-A:3, A-C:0, C-T:1; back: A-S:7, C-A:7, T-C:7
-        # Path 2: S->B->D->T, flow=8  => S-B:0, B-D:2, D-T:2; back: B-S:8, D-B:8, T-D:8
-        # Path 3: S->A->B->D->T, flow=2 => S-A:1, A-B:3, B-D:0, D-T:0; back: A-S:9, B-A:2, D-B:10, T-D:10
-        # Path 4: S->A->C->D->T, flow=1 => S-A:0, A-C: wait...
-        # Let me recompute carefully:
-        # Initial: S-A:10, S-B:8, A-B:5, A-C:7, B-D:10, C-T:8, D-T:10, C-D:3
-        # After path 1 (S-A-C-T, 7): S-A:3, A-C:0, C-T:1; backs: A-S:7, C-A:7, T-C:7
-        # After path 2 (S-B-D-T, 8): S-B:0, B-D:2, D-T:2; backs: B-S:8, D-B:8, T-D:8
-        # After path 3 (S-A-B-D-T, 2): S-A:1, A-B:3, B-D:0, D-T:0; backs: A-S:9, B-A:2, D-B:10, T-D:10
-        # After path 4 (S-A-C-D-T, 1): S-A:0, A-C:? A-C was 0 after path1...
-        # Hmm, path 4 uses A-C but residual is 0. The user's spec says path 4 pushes 1.
-        # Actually, looking at original edges: A-C had cap 7. After path 1 pushed 7, A-C residual = 0.
-        # But there might be another way. Let me check the user's paths again:
-        # Path 4: S->A->C->D->T, flow=1. After path 3, S-A=1. A-C was 0 after path 1 but...
-        # Actually wait - let me re-examine. After path 1 (flow 7), A-C forward = 0, C-A back = 7.
-        # After path 3, nothing changed A-C. So A-C forward is still 0.
-        # The user's path 4 might not be valid with these exact numbers, but we implement what they asked.
-        # Let me just use the final residual state from the walkthrough scene logic.
-
-        # The final residual after all paths:
+        # Compute the final residual after all 4 augmenting paths:
         final_residual = {}
         for u, v, cap in EDGES_DATA:
             final_residual[(u, v)] = cap
