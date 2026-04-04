@@ -293,7 +293,7 @@ class WhatIsACutScene(Scene):
         self.play(Write(compare), run_time=1.5)
         self.wait(4)
 
-        self.play(FadeOut(VGroup(*self.mobjects)), run_time=1.5)
+        self.play(FadeOut(Group(*self.mobjects)), run_time=1.5)
         self.wait(1)
 
 
@@ -345,7 +345,7 @@ class MaxFlowMinCutTheoremScene(Scene):
         self.play(FadeIn(intuition), run_time=1.5)
         self.wait(5)
 
-        self.play(FadeOut(VGroup(*self.mobjects)), run_time=1.5)
+        self.play(FadeOut(Group(*self.mobjects)), run_time=1.5)
         self.wait(1)
 
 
@@ -517,7 +517,7 @@ class FordFulkersonWalkthroughScene(Scene):
         self.play(Write(result), Create(box), run_time=2)
         self.wait(4)
 
-        self.play(FadeOut(VGroup(*self.mobjects)), run_time=1.5)
+        self.play(FadeOut(Group(*self.mobjects)), run_time=1.5)
         self.wait(1)
 
 
@@ -680,7 +680,7 @@ class MinCutIdentificationScene(Scene):
         self.play(Write(verify), Create(box), run_time=1.5)
         self.wait(5)
 
-        self.play(FadeOut(VGroup(*self.mobjects)), run_time=1.5)
+        self.play(FadeOut(Group(*self.mobjects)), run_time=1.5)
         self.wait(1)
 
 
@@ -744,7 +744,7 @@ class SummaryScene(Scene):
         self.wait(4)
 
         # Thank you
-        self.play(FadeOut(VGroup(*self.mobjects)), run_time=1.5)
+        self.play(FadeOut(Group(*self.mobjects)), run_time=1.5)
         self.wait(0.5)
 
         thank_you = Text("Thank You!", font_size=72, color=YELLOW)
